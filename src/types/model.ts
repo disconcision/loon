@@ -46,10 +46,12 @@ export interface ModelConfig {
 }
 
 export type ViewType = "forest" | "path";
+export type ThemeMode = "dark" | "light";
 
 // View state tracking
 export interface ViewState {
   viewType: ViewType;
+  themeMode: ThemeMode;
   currentPath: NodeId[];
   expanded: Set<NodeId>;
   focus: {

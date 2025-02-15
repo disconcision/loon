@@ -2,6 +2,8 @@
 import { Node, NodeId } from "@/types/model";
 import { useStore } from "@/store/context";
 import { useCallback } from "preact/hooks";
+import { themes } from "@/styles/themes";
+import "@/styles/message.css";
 
 interface Props {
   id: NodeId;
@@ -14,11 +16,13 @@ export function MessageNode({ id, node, hasSiblings }: Props) {
   const isExpanded = state.viewState.expanded.has(id);
   const isFocused = state.viewState.focus.textBox === id;
   const isPathView = state.viewState.viewType === "path";
+  const theme = themes[state.viewState.themeMode];
 
   // Get sibling information
   const parent = node.parent ? state.loom.nodes.get(node.parent) : null;
   const siblingCount = parent ? parent.children.length : 0;
   const siblingIndex = parent ? parent.children.indexOf(id) + 1 : 0;
+  const showSiblingControls = isPathView && hasSiblings;
 
   const handleNavigateSibling = useCallback(
     (direction: "prev" | "next") => {
@@ -40,99 +44,58 @@ export function MessageNode({ id, node, hasSiblings }: Props) {
 
   return (
     <div className="message-container">
-      <div className="message-controls">
-        {isPathView && hasSiblings && (
-          <>
-            <button onClick={() => handleNavigateSibling("prev")}>←</button>
-            <span className="sibling-indicator">
-              {siblingIndex}/{siblingCount}
-            </span>
-            <button onClick={() => handleNavigateSibling("next")}>→</button>
-          </>
-        )}
-        {!isPathView && node.children.length > 0 && (
-          <button onClick={handleExpand}>{isExpanded ? "▼" : "▶"}</button>
-        )}
-      </div>
       <div
-        className={`message-node ${isFocused ? "focused" : ""} ${node.message.source}`}
-        onClick={handleFocus}
+        className={`message-node-wrapper ${showSiblingControls ? "with-siblings" : "without-siblings"}`}
       >
-        <div className="message-content">{node.message.content}</div>
+        {showSiblingControls && (
+          <div className="sibling-controls left">
+            <button
+              className="nav-button prev"
+              onClick={() => handleNavigateSibling("prev")}
+              style={{ color: theme.textDim }}
+            >
+              ‹
+            </button>
+          </div>
+        )}
+        <div
+          className={`message-node ${isFocused ? "focused" : ""} ${node.message.source}`}
+          onClick={handleFocus}
+          style={{
+            background: theme[node.message.source],
+            borderColor: isFocused ? theme.borderSelected : "transparent",
+          }}
+        >
+          {showSiblingControls && siblingCount > 1 && (
+            <div className="sibling-count" style={{ color: theme.textDim }}>
+              {siblingIndex}/{siblingCount}
+            </div>
+          )}
+          <div className="message-content" style={{ color: theme.text }}>
+            {node.message.content}
+          </div>
+        </div>
+        {showSiblingControls && (
+          <div className="sibling-controls right">
+            <button
+              className="nav-button next"
+              onClick={() => handleNavigateSibling("next")}
+              style={{ color: theme.textDim }}
+            >
+              ›
+            </button>
+          </div>
+        )}
       </div>
-      <style jsx>{`
-        .message-container {
-          display: flex;
-          align-items: flex-start;
-          gap: 8px;
-          margin: 4px 0;
-        }
-
-        .message-controls {
-          display: flex;
-          gap: 4px;
-          padding-top: 8px; /* Align with message content */
-          min-width: 80px; /* Increased to accommodate sibling indicator */
-          justify-content: flex-end;
-          align-items: center;
-        }
-
-        .sibling-indicator {
-          font-family: monospace;
-          font-size: 12px;
-          color: #666;
-          min-width: 24px;
-          text-align: center;
-        }
-
-        .message-controls button {
-          padding: 2px 6px;
-          background: none;
-          border: 1px solid #ccc;
-          border-radius: 2px;
-          cursor: pointer;
-          font-family: monospace;
-          min-width: 24px;
-          height: 24px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-        }
-
-        .message-controls button:hover {
-          background: #f0f0f0;
-        }
-
-        .message-node {
-          flex: 1;
-          padding: 8px;
-          border: 1px solid #ccc;
-          border-radius: 4px;
-          font-family: monospace;
-          cursor: pointer;
-        }
-
-        .message-node.focused {
-          border-color: #000;
-        }
-
-        .message-node.human {
-          background: #f5f5f5;
-        }
-
-        .message-node.model {
-          background: #f0f7ff;
-        }
-
-        .message-node.system {
-          background: #fff0f0;
-        }
-
-        .message-content {
-          white-space: pre-wrap;
-          overflow-wrap: break-word;
-        }
-      `}</style>
+      {!isPathView && node.children.length > 0 && (
+        <button
+          className="expand-button"
+          onClick={handleExpand}
+          style={{ color: theme.textDim }}
+        >
+          {isExpanded ? "▼" : "▶"}
+        </button>
+      )}
     </div>
   );
 }

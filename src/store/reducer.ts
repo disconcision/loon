@@ -6,7 +6,7 @@ export function reducer(state: Model, action: Action): Model {
     case 'NAVIGATE_SIBLING': {
       const currentNode = action.nodeId;
       console.log('NAVIGATE_SIBLING - Current node:', currentNode);
-      
+
       const parent = state.loom.nodes.get(currentNode)?.parent;
       console.log('NAVIGATE_SIBLING - Parent ID:', parent);
       if (!parent) {
@@ -52,11 +52,11 @@ export function reducer(state: Model, action: Action): Model {
 
       // Create a new path starting with the unchanged prefix up to the navigated node
       const newPath = state.viewState.currentPath.slice(0, pathIndex);
-      
+
       // Add the new sibling
       const newSiblingId = siblings[newIndex];
       newPath.push(newSiblingId);
-      
+
       // Follow first child path from the new sibling
       let currentId = newSiblingId;
       while (true) {
@@ -215,6 +215,16 @@ export function reducer(state: Model, action: Action): Model {
         viewState: {
           ...state.viewState,
           viewType: action.viewType,
+        },
+      };
+    }
+
+    case 'TOGGLE_THEME': {
+      return {
+        ...state,
+        viewState: {
+          ...state.viewState,
+          themeMode: state.viewState.themeMode === 'dark' ? 'light' : 'dark',
         },
       };
     }

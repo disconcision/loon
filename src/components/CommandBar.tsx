@@ -1,11 +1,13 @@
 /** @jsxImportSource preact */
 import { useStore } from "@/store/context";
 import { useCallback, useState } from "preact/hooks";
+import { themes } from "@/styles/themes";
 
 export function CommandBar() {
   const { state, dispatch } = useStore();
   const [command, setCommand] = useState("");
   const isFocused = state.viewState.focus.commandBar;
+  const theme = themes[state.viewState.themeMode];
 
   const handleFocus = useCallback(() => {
     dispatch({ type: "FOCUS_COMMAND_BAR" });
@@ -55,13 +57,14 @@ export function CommandBar() {
           left: 0;
           right: 0;
           padding: 8px;
-          background: #f8f8f8;
-          border-bottom: 1px solid #ccc;
+          background: ${theme.surface};
+          border-bottom: 1px solid ${theme.border};
+          transition: all 0.2s;
         }
 
         .command-bar.focused {
-          background: #fff;
-          border-bottom-color: #000;
+          background: ${theme.surfaceSelected};
+          border-bottom-color: ${theme.borderSelected};
         }
 
         input {
@@ -69,13 +72,21 @@ export function CommandBar() {
           padding: 8px;
           font-family: monospace;
           font-size: 14px;
-          border: 1px solid #ccc;
+          color: ${theme.text};
+          background: ${theme.surface};
+          border: 1px solid ${theme.border};
           border-radius: 4px;
           outline: none;
+          transition: all 0.2s;
         }
 
         input:focus {
-          border-color: #000;
+          background: ${theme.surfaceSelected};
+          border-color: ${theme.borderSelected};
+        }
+
+        input::placeholder {
+          color: ${theme.textDim};
         }
       `}</style>
     </form>

@@ -1,0 +1,87 @@
+.message-container {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin: 4px 0;
+  position: relative;
+}
+
+.message-node-wrapper {
+  flex: 1;
+  position: relative;
+  width: 100%;
+}
+
+/* Grid layout only when siblings are present */
+.message-node-wrapper.with-siblings {
+  display: grid;
+  grid-template-columns: 24px minmax(0, 1fr) 24px;
+  gap: 8px;
+}
+
+/* Full width when no siblings but maintain alignment */
+.message-node-wrapper.without-siblings {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  padding: 0 32px; /* 24px for arrow width + 8px for gap on each side */
+}
+
+.sibling-controls {
+  display: flex;
+  align-items: center;
+  height: 100%;
+}
+
+.sibling-controls.left {
+  justify-content: flex-start;
+}
+
+.sibling-controls.right {
+  justify-content: flex-end;
+}
+
+.nav-button {
+  background: none;
+  border: none;
+  font-size: 24px;
+  padding: 0;
+  cursor: pointer;
+  line-height: 1;
+  transition: color 0.2s;
+}
+
+.sibling-count {
+  position: absolute;
+  top: 4px;
+  right: 8px;
+  font-size: 11px;
+  font-family: monospace;
+}
+
+.message-node {
+  position: relative;
+  padding: 12px;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  font-family: monospace;
+  cursor: pointer;
+  transition: all 0.2s;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.message-content {
+  white-space: pre-wrap;
+  overflow-wrap: break-word;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.expand-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  font-size: 12px;
+  transition: color 0.2s;
+}

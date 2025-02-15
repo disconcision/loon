@@ -5,7 +5,8 @@ export type NavigationAction =
   | { type: "NAVIGATE_VERTICAL"; direction: "up" | "down" }
   | { type: "FOCUS_NODE"; id: NodeId }
   | { type: "FOCUS_COMMAND_BAR" }
-  | { type: "SET_VIEW_TYPE"; viewType: ViewType };
+  | { type: "SET_VIEW_TYPE"; viewType: ViewType }
+  | { type: "TOGGLE_THEME" };
 
 export type ContentAction =
   | { type: "EDIT_NODE"; id: NodeId; content: string }
