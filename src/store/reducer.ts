@@ -73,6 +73,10 @@ export function reducer(state: Model, action: Action): Model {
         viewState: {
           ...state.viewState,
           currentPath: newPath,
+          focus: {
+            ...state.viewState.focus,
+            selectedNode: newSiblingId,
+          },
         },
       };
     }
@@ -100,14 +104,24 @@ export function reducer(state: Model, action: Action): Model {
     }
 
     case 'FOCUS_NODE': {
+      // Build path to focused node
+      const newPath: NodeId[] = [];
+      let currentId: NodeId | undefined = action.id;
+      
+      while (currentId) {
+        newPath.unshift(currentId);
+        const node = state.loom.nodes.get(currentId);
+        currentId = node?.parent;
+      }
+
       return {
         ...state,
         viewState: {
           ...state.viewState,
+          currentPath: newPath,
           focus: {
-            ...state.viewState.focus,
             commandBar: false,
-            textBox: action.id,
+            selectedNode: action.id,
           },
         },
       };
@@ -121,7 +135,6 @@ export function reducer(state: Model, action: Action): Model {
           focus: {
             ...state.viewState.focus,
             commandBar: true,
-            textBox: undefined,
           },
         },
       };
@@ -225,6 +238,125 @@ export function reducer(state: Model, action: Action): Model {
         viewState: {
           ...state.viewState,
           themeMode: state.viewState.themeMode === 'dark' ? 'light' : 'dark',
+        },
+      };
+    }
+
+    case 'ADD_MODEL_RESPONSES': {
+      const parentNode = state.loom.nodes.get(action.parentId);
+      if (!parentNode) return state;
+
+      const nodes = new Map(state.loom.nodes);
+      const newChildren: NodeId[] = [];
+
+      // Create a new node for each response
+      action.responses.forEach(content => {
+        const newId = crypto.randomUUID();
+        nodes.set(newId, {
+          id: newId,
+          message: {
+            content,
+            source: "model",
+            timestamp: new Date(),
+          },
+          parent: action.parentId,
+          children: [],
+          isEdited: false,
+        });
+        newChildren.push(newId);
+      });
+
+      // Update parent's children
+      nodes.set(action.parentId, {
+        ...parentNode,
+        children: [...parentNode.children, ...newChildren],
+      });
+
+      return {
+        ...state,
+        loom: {
+          ...state.loom,
+          nodes,
+        },
+        viewState: {
+          ...state.viewState,
+          expanded: new Set([...state.viewState.expanded, action.parentId]),
+        },
+      };
+    }
+
+    case 'SET_NODE_PENDING': {
+      const pending = new Set(state.pending);
+      if (action.isPending) {
+        pending.add(action.nodeId);
+      } else {
+        pending.delete(action.nodeId);
+      }
+      return {
+        ...state,
+        pending,
+      };
+    }
+
+    case 'ADD_PLACEHOLDER_NODE': {
+      const parentNode = state.loom.nodes.get(action.parentId);
+      if (!parentNode) return state;
+
+      const nodes = new Map(state.loom.nodes);
+      
+      // Create placeholder node
+      nodes.set(action.nodeId, {
+        id: action.nodeId,
+        message: {
+          content: "",  // Empty content for placeholder
+          source: "model",
+          timestamp: new Date(),
+          metadata: { isPlaceholder: true },
+        },
+        parent: action.parentId,
+        children: [],
+        isEdited: false,
+      });
+
+      // Update parent's children
+      nodes.set(action.parentId, {
+        ...parentNode,
+        children: [...parentNode.children, action.nodeId],
+      });
+
+      return {
+        ...state,
+        loom: {
+          ...state.loom,
+          nodes,
+        },
+        viewState: {
+          ...state.viewState,
+          expanded: new Set([...state.viewState.expanded, action.parentId]),
+        },
+      };
+    }
+
+    case 'REPLACE_PLACEHOLDER_NODE': {
+      const node = state.loom.nodes.get(action.nodeId);
+      if (!node) return state;
+
+      const nodes = new Map(state.loom.nodes);
+      nodes.set(action.nodeId, {
+        ...node,
+        message: {
+          content: action.content,
+          source: "model",
+          timestamp: new Date(),
+          metadata: action.isError ? { isError: true } : undefined,
+        },
+      });
+
+      return {
+        ...state,
+        loom: {
+          ...state.loom,
+          nodes,
         },
       };
     }

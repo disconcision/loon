@@ -13,10 +13,11 @@ const initialState: Model = {
   viewState: {
     viewType: "forest",
     themeMode: "dark",
-    currentPath: ["root", "post1", "response1a", "followup1a", "response1a1"],
+    currentPath: ["root"],
     expanded: new Set(["root", "post1", "post2", "post3"]),
     focus: {
       commandBar: false,
+      selectedNode: null,
     },
   },
   config: {
@@ -38,7 +39,7 @@ const initialState: Model = {
       circularSiblings: true,
     },
   },
-  pending: new Map(),
+  pending: new Set(),
 };
 
 // Create the context

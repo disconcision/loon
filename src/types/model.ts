@@ -52,18 +52,41 @@ export type ThemeMode = "dark" | "light";
 export interface ViewState {
   viewType: ViewType;
   themeMode: ThemeMode;
-  currentPath: NodeId[];
+  currentPath: NodeId[];  // The full path of visible nodes
   expanded: Set<NodeId>;
   focus: {
     commandBar: boolean;
-    textBox?: NodeId;
+    selectedNode: NodeId | null;  // The currently selected/focused node
+  };
+}
+
+// API Configuration
+export type ApiConfig = {
+  openRouter?: string;
+};
+
+// Model format type
+export type ModelFormat = "chat" | "completion";
+
+// Model configuration
+export interface ModelCard {
+  name: string;
+  model: string;  // OpenRouter model identifier
+  format: ModelFormat;
+  endpoint: string;
+  parameters: {
+    temperature: number;
+    max_tokens: number;
+    top_p?: number;
+    frequency_penalty?: number;
+    presence_penalty?: number;
   };
 }
 
 // Application configuration
 export interface Config {
-  apiKeys: Record<string, string>;
-  modelCards: Record<string, ModelConfig>;
+  apiKeys: ApiConfig;
+  modelCards: Record<string, ModelCard>;
   navigation: {
     circularSiblings: boolean;
   };
@@ -74,5 +97,5 @@ export interface Model {
   loom: Loom;
   viewState: ViewState;
   config: Config;
-  pending: Map<NodeId, number>; // Tracks in-flight completions
+  pending: Set<NodeId>; // Tracks nodes with in-flight requests
 } 

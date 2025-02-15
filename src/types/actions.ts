@@ -1,4 +1,4 @@
-import { NodeId, Config, ViewType } from './model';
+import { NodeId, Config, ViewType, Node, ViewState } from './model';
 
 export type NavigationAction =
   | { type: "NAVIGATE_SIBLING"; direction: "prev" | "next"; nodeId: NodeId }
@@ -6,12 +6,14 @@ export type NavigationAction =
   | { type: "FOCUS_NODE"; id: NodeId }
   | { type: "FOCUS_COMMAND_BAR" }
   | { type: "SET_VIEW_TYPE"; viewType: ViewType }
-  | { type: "TOGGLE_THEME" };
+  | { type: "TOGGLE_THEME" }
+  | { type: "LOAD_VIEW_STATE"; viewState: ViewState };
 
 export type ContentAction =
   | { type: "EDIT_NODE"; id: NodeId; content: string }
   | { type: "RESIZE_NODE"; id: NodeId; height: number }
-  | { type: "SET_NODE_EXPANDED"; id: NodeId; expanded: boolean };
+  | { type: "SET_NODE_EXPANDED"; id: NodeId; expanded: boolean }
+  | { type: "LOAD_NODES"; nodes: Map<NodeId, Node> };
 
 export type ModelAction =
   | { 
@@ -29,6 +31,27 @@ export type ModelAction =
       type: "COMPLETION_ERROR"; 
       parentId: NodeId; 
       error: string;
+    }
+  | {
+      type: "ADD_MODEL_RESPONSES";
+      parentId: NodeId;
+      responses: string[];
+    }
+  | {
+      type: "SET_NODE_PENDING";
+      nodeId: NodeId;
+      isPending: boolean;
+    }
+  | {
+      type: "ADD_PLACEHOLDER_NODE";
+      parentId: NodeId;
+      nodeId: NodeId;
+    }
+  | {
+      type: "REPLACE_PLACEHOLDER_NODE";
+      nodeId: NodeId;
+      content: string;
+      isError?: boolean;
     };
 
 export type ConfigAction =

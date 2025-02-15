@@ -9,20 +9,18 @@ export function PathView() {
 
   return (
     <div className="path-view">
-      {currentPath.map((nodeId) => {
+      {currentPath.map((nodeId, index) => {
         const node = nodes.get(nodeId);
         if (!node) return null;
 
+        // For path view, a node has siblings if its parent has more than one child
         const parent = node.parent ? nodes.get(node.parent) : null;
         const hasSiblings = parent ? parent.children.length > 1 : false;
 
         return (
-          <MessageNode
-            key={nodeId}
-            id={nodeId}
-            node={node}
-            hasSiblings={hasSiblings}
-          />
+          <div key={nodeId} className="path-node">
+            <MessageNode id={nodeId} node={node} hasSiblings={hasSiblings} />
+          </div>
         );
       })}
       <style jsx>{`
@@ -30,6 +28,9 @@ export function PathView() {
           padding: 60px 48px 16px; /* Top padding for command bar */
           max-width: 800px;
           margin: 0 auto;
+        }
+        .path-node {
+          margin: 8px 0;
         }
       `}</style>
     </div>

@@ -14,125 +14,106 @@ export function generateDummyData(): Map<NodeId, Node> {
   // Root node
   const root: Node = {
     id: 'root',
-    message: createMessage('Welcome to Loon! This is a prototype for exploring conversations with language models.', 'system'),
-    children: ['post1', 'post2', 'post3'],
+    message: createMessage('Welcome to Loon! Try asking a question or use commands like "view", "theme", or "@go".', 'system'),
+    children: ['q1', 'q2', 'q3', 'q4', 'q5'],
     isEdited: false,
   };
   nodes.set('root', root);
 
-  // First thread
-  const post1: Node = {
-    id: 'post1',
-    message: createMessage('How would you implement a red-black tree in TypeScript?', 'human'),
+  // Question 1: Science
+  const q1: Node = {
+    id: 'q1',
+    message: createMessage('What causes the northern lights?', 'human'),
     parent: 'root',
-    children: ['response1a', 'response1b'],
+    children: ['a1'],
     isEdited: false,
   };
-  nodes.set('post1', post1);
+  nodes.set('q1', q1);
 
-  const response1a: Node = {
-    id: 'response1a',
-    message: createMessage('Here\'s an implementation of a red-black tree. Let\'s start with the node structure...', 'model'),
-    parent: 'post1',
-    children: ['followup1a'],
-    isEdited: false,
-  };
-  nodes.set('response1a', response1a);
-
-  const followup1a: Node = {
-    id: 'followup1a',
-    message: createMessage('Could you add some test cases to verify the implementation?', 'human'),
-    parent: 'response1a',
-    children: ['response1a1'],
-    isEdited: false,
-  };
-  nodes.set('followup1a', followup1a);
-
-  const response1a1: Node = {
-    id: 'response1a1',
-    message: createMessage('Here are some comprehensive test cases for the red-black tree implementation...', 'model'),
-    parent: 'followup1a',
+  const a1: Node = {
+    id: 'a1',
+    message: createMessage('The aurora borealis occurs when charged particles from the Sun collide with Earth\'s atmosphere. These particles are guided by our planet\'s magnetic field toward the poles, creating stunning displays of light when they interact with atmospheric gases.', 'model'),
+    parent: 'q1',
     children: [],
     isEdited: false,
   };
-  nodes.set('response1a1', response1a1);
+  nodes.set('a1', a1);
 
-  const response1b: Node = {
-    id: 'response1b',
-    message: createMessage('Let\'s approach this differently. First, let\'s implement a basic binary search tree...', 'model'),
-    parent: 'post1',
-    children: [],
-    isEdited: false,
-  };
-  nodes.set('response1b', response1b);
-
-  // Second thread (deep)
-  const post2: Node = {
-    id: 'post2',
-    message: createMessage('Explain the concept of monads in functional programming.', 'human'),
+  // Question 2: Pop Culture
+  const q2: Node = {
+    id: 'q2',
+    message: createMessage('Why do cats knock things off tables?', 'human'),
     parent: 'root',
-    children: ['response2a'],
+    children: ['a2'],
     isEdited: false,
   };
-  nodes.set('post2', post2);
+  nodes.set('q2', q2);
 
-  let currentId = 'response2a';
-  let parentId = 'post2';
-  for (let i = 0; i < 10; i++) {
-    const isHuman = i % 2 === 0;
-    const content = isHuman
-      ? `Could you clarify the ${['bind', 'return', 'join', 'map', 'chain'][i % 5]} operation?`
-      : `The ${['bind', 'return', 'join', 'map', 'chain'][i % 5]} operation in monads works as follows...`;
-    
-    const node: Node = {
-      id: currentId,
-      message: createMessage(content, isHuman ? 'human' : 'model'),
-      parent: parentId,
-      children: i < 9 ? [`response2a_${i + 1}`] : [],
-      isEdited: false,
-    };
-    nodes.set(currentId, node);
-    
-    parentId = currentId;
-    currentId = `response2a_${i + 1}`;
-  }
+  const a2: Node = {
+    id: 'a2',
+    message: createMessage('Cats knock things over for several reasons: to test gravity (yes, really), to get attention, out of curiosity, or simply because they find it entertaining. It\'s a form of play that also helps them practice their hunting skills.', 'model'),
+    parent: 'q2',
+    children: [],
+    isEdited: false,
+  };
+  nodes.set('a2', a2);
 
-  // Third thread
-  const post3: Node = {
-    id: 'post3',
-    message: createMessage('What are the key differences between REST and GraphQL?', 'human'),
+  // Question 3: Technology
+  const q3: Node = {
+    id: 'q3',
+    message: createMessage('What\'s the difference between RAM and ROM?', 'human'),
     parent: 'root',
-    children: ['response3a', 'response3b', 'response3c'],
+    children: ['a3'],
     isEdited: false,
   };
-  nodes.set('post3', post3);
+  nodes.set('q3', q3);
 
-  const response3a: Node = {
-    id: 'response3a',
-    message: createMessage('REST is resource-oriented while GraphQL is query-oriented...', 'model'),
-    parent: 'post3',
+  const a3: Node = {
+    id: 'a3',
+    message: createMessage('RAM (Random Access Memory) is temporary, fast memory used for running programs. It\'s wiped when you turn off your device. ROM (Read Only Memory) is permanent storage that keeps data even without power, like your phone\'s operating system.', 'model'),
+    parent: 'q3',
     children: [],
     isEdited: false,
   };
-  nodes.set('response3a', response3a);
+  nodes.set('a3', a3);
 
-  const response3b: Node = {
-    id: 'response3b',
-    message: createMessage('Let\'s compare them through practical examples...', 'model'),
-    parent: 'post3',
+  // Question 4: Philosophy
+  const q4: Node = {
+    id: 'q4',
+    message: createMessage('If a tree falls in a forest and no one is around to hear it, does it make a sound?', 'human'),
+    parent: 'root',
+    children: ['a4'],
+    isEdited: false,
+  };
+  nodes.set('q4', q4);
+
+  const a4: Node = {
+    id: 'a4',
+    message: createMessage('It depends on how you define "sound". If sound is the physical vibration of air molecules, then yes. If sound is the perception of those vibrations by a consciousness, then no. This paradox highlights the difference between physical phenomena and conscious experience.', 'model'),
+    parent: 'q4',
     children: [],
     isEdited: false,
   };
-  nodes.set('response3b', response3b);
+  nodes.set('a4', a4);
 
-  const response3c: Node = {
-    id: 'response3c',
-    message: createMessage('From a performance perspective...', 'model'),
-    parent: 'post3',
+  // Question 5: Humor
+  const q5: Node = {
+    id: 'q5',
+    message: createMessage('Why did the programmer quit his job?', 'human'),
+    parent: 'root',
+    children: ['a5'],
+    isEdited: false,
+  };
+  nodes.set('q5', q5);
+
+  const a5: Node = {
+    id: 'a5',
+    message: createMessage('Because he didn\'t get arrays! 🤓\n\n(That\'s a programming joke - "arrays" sounds like "a raise")', 'model'),
+    parent: 'q5',
     children: [],
     isEdited: false,
   };
-  nodes.set('response3c', response3c);
+  nodes.set('a5', a5);
 
   return nodes;
 } 

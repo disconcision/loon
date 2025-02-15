@@ -4,6 +4,7 @@ import { useStore } from "@/store/context";
 import { useCallback } from "preact/hooks";
 import { themes } from "@/styles/themes";
 import "@/styles/message.css";
+import { TypingIndicator } from "./TypingIndicator";
 
 interface Props {
   id: NodeId;
@@ -14,7 +15,7 @@ interface Props {
 export function MessageNode({ id, node, hasSiblings }: Props) {
   const { state, dispatch } = useStore();
   const isExpanded = state.viewState.expanded.has(id);
-  const isFocused = state.viewState.focus.textBox === id;
+  const isFocused = state.viewState.focus.selectedNode === id;
   const isPathView = state.viewState.viewType === "path";
   const theme = themes[state.viewState.themeMode];
 
@@ -42,6 +43,9 @@ export function MessageNode({ id, node, hasSiblings }: Props) {
     dispatch({ type: "SET_NODE_EXPANDED", id, expanded: !isExpanded });
   }, [dispatch, id, isExpanded]);
 
+  const isPlaceholder = node.message.metadata?.isPlaceholder === true;
+  const isError = node.message.metadata?.isError === true;
+
   return (
     <div className="message-container">
       <div
@@ -59,7 +63,7 @@ export function MessageNode({ id, node, hasSiblings }: Props) {
           </div>
         )}
         <div
-          className={`message-node ${isFocused ? "focused" : ""} ${node.message.source}`}
+          className={`message-node ${isFocused ? "focused" : ""} ${node.message.source} ${isError ? "error" : ""}`}
           onClick={handleFocus}
           style={{
             background: theme[node.message.source],
@@ -71,9 +75,17 @@ export function MessageNode({ id, node, hasSiblings }: Props) {
               {siblingIndex}/{siblingCount}
             </div>
           )}
-          <div className="message-content" style={{ color: theme.text }}>
-            {node.message.content}
+          <div
+            className="message-content"
+            style={{ color: isError ? theme.textDim : theme.text }}
+          >
+            {isPlaceholder ? <TypingIndicator /> : node.message.content}
           </div>
+          {state.pending.has(id) && (
+            <div className="pending-indicator" style={{ color: theme.textDim }}>
+              •••
+            </div>
+          )}
         </div>
         {showSiblingControls && (
           <div className="sibling-controls right">
@@ -96,6 +108,30 @@ export function MessageNode({ id, node, hasSiblings }: Props) {
           {isExpanded ? "▼" : "▶"}
         </button>
       )}
+      <style jsx>{`
+        .pending-indicator {
+          position: absolute;
+          bottom: 4px;
+          right: 4px;
+          font-size: 14px;
+          opacity: 0.7;
+          animation: pulse 1.5s infinite;
+        }
+        @keyframes pulse {
+          0% {
+            opacity: 0.3;
+          }
+          50% {
+            opacity: 0.7;
+          }
+          100% {
+            opacity: 0.3;
+          }
+        }
+        .message-node.error {
+          opacity: 0.7;
+        }
+      `}</style>
     </div>
   );
 }

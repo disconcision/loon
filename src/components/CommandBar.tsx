@@ -26,7 +26,10 @@ export function CommandBar() {
   }, [userText]);
 
   const handleFocus = useCallback(() => {
-    dispatch({ type: "FOCUS_COMMAND_BAR" });
+    // Only update commandBar focus, preserve textBox focus
+    dispatch({
+      type: "FOCUS_COMMAND_BAR",
+    });
   }, [dispatch]);
 
   const handleKeyDown = useCallback(
@@ -77,15 +80,42 @@ export function CommandBar() {
 
       const parsedCommand = parseCommand(userText.trim());
       if (parsedCommand) {
-        const action = executeCommand(parsedCommand, state.viewState.viewType);
+        // Get nodes in current path
+        const pathNodes = state.viewState.currentPath
+          .map((id) => state.loom.nodes.get(id))
+          .filter(
+            (node): node is NonNullable<typeof node> => node !== undefined
+          );
+
+        const action = executeCommand(
+          parsedCommand,
+          state.viewState.viewType,
+          pathNodes,
+          dispatch,
+          state
+        );
         if (action) {
           dispatch(action);
         }
         setUserText("");
         setSuggestions([]);
+
+        // Clear focus from command bar
+        dispatch({
+          type: "FOCUS_NODE",
+          id: state.viewState.currentPath[
+            state.viewState.currentPath.length - 1
+          ],
+        });
       }
     },
-    [userText, dispatch, state.viewState.viewType]
+    [
+      userText,
+      dispatch,
+      state.viewState.viewType,
+      state.viewState.currentPath,
+      state.loom.nodes,
+    ]
   );
 
   const handleSuggestionClick = useCallback((suggestion: Suggestion) => {

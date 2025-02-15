@@ -11,8 +11,7 @@ export function ViewContainer() {
   // Handle keyboard shortcut for view switching
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      // Support both Alt (Windows) and Option/Command (Mac)
-      if ((e.altKey || e.metaKey) && e.key.toLowerCase() === "v") {
+      if (e.altKey && e.key.toLowerCase() === "v") {
         e.preventDefault(); // Prevent any default browser shortcuts
         console.log(
           "Switching view type:",
