@@ -13,13 +13,19 @@ export function MessageNode({ id, node, hasSiblings }: Props) {
   const { state, dispatch } = useStore();
   const isExpanded = state.viewState.expanded.has(id);
   const isFocused = state.viewState.focus.textBox === id;
+  const isPathView = state.viewState.viewType === "path";
+
+  // Get sibling information
+  const parent = node.parent ? state.loom.nodes.get(node.parent) : null;
+  const siblingCount = parent ? parent.children.length : 0;
+  const siblingIndex = parent ? parent.children.indexOf(id) + 1 : 0;
 
   const handleNavigateSibling = useCallback(
     (direction: "prev" | "next") => {
-      console.log("Navigate sibling:", direction);
-      dispatch({ type: "NAVIGATE_SIBLING", direction });
+      console.log("Navigate sibling:", direction, "for node:", id);
+      dispatch({ type: "NAVIGATE_SIBLING", direction, nodeId: id });
     },
-    [dispatch]
+    [dispatch, id]
   );
 
   const handleFocus = useCallback(() => {
@@ -35,13 +41,16 @@ export function MessageNode({ id, node, hasSiblings }: Props) {
   return (
     <div className="message-container">
       <div className="message-controls">
-        {hasSiblings && (
+        {isPathView && hasSiblings && (
           <>
             <button onClick={() => handleNavigateSibling("prev")}>←</button>
+            <span className="sibling-indicator">
+              {siblingIndex}/{siblingCount}
+            </span>
             <button onClick={() => handleNavigateSibling("next")}>→</button>
           </>
         )}
-        {node.children.length > 0 && (
+        {!isPathView && node.children.length > 0 && (
           <button onClick={handleExpand}>{isExpanded ? "▼" : "▶"}</button>
         )}
       </div>
@@ -63,6 +72,17 @@ export function MessageNode({ id, node, hasSiblings }: Props) {
           display: flex;
           gap: 4px;
           padding-top: 8px; /* Align with message content */
+          min-width: 80px; /* Increased to accommodate sibling indicator */
+          justify-content: flex-end;
+          align-items: center;
+        }
+
+        .sibling-indicator {
+          font-family: monospace;
+          font-size: 12px;
+          color: #666;
+          min-width: 24px;
+          text-align: center;
         }
 
         .message-controls button {

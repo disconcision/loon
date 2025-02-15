@@ -1,14 +1,14 @@
 /** @jsxImportSource preact */
 import { StoreProvider } from "@/store/provider";
 import { CommandBar } from "@/components/CommandBar";
-import { ForestView } from "@/components/ForestView";
+import { ViewContainer } from "@/components/ViewContainer";
 
 export function App() {
   return (
     <StoreProvider>
       <div className="app">
         <CommandBar />
-        <ForestView />
+        <ViewContainer />
         <style jsx>{`
           .app {
             min-height: 100vh;

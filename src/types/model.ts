@@ -45,8 +45,11 @@ export interface ModelConfig {
   };
 }
 
+export type ViewType = "forest" | "path";
+
 // View state tracking
 export interface ViewState {
+  viewType: ViewType;
   currentPath: NodeId[];
   expanded: Set<NodeId>;
   focus: {

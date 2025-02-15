@@ -11,7 +11,8 @@ const initialState: Model = {
     root: "root",
   },
   viewState: {
-    currentPath: ["root"],
+    viewType: "forest",
+    currentPath: ["root", "post1", "response1a", "followup1a", "response1a1"],
     expanded: new Set(["root", "post1", "post2", "post3"]),
     focus: {
       commandBar: false,

@@ -4,16 +4,31 @@ import { Action } from '@/types/actions';
 export function reducer(state: Model, action: Action): Model {
   switch (action.type) {
     case 'NAVIGATE_SIBLING': {
-      const currentNode = state.viewState.currentPath[state.viewState.currentPath.length - 1];
+      const currentNode = action.nodeId;
+      console.log('NAVIGATE_SIBLING - Current node:', currentNode);
+      
       const parent = state.loom.nodes.get(currentNode)?.parent;
-      if (!parent) return state;
+      console.log('NAVIGATE_SIBLING - Parent ID:', parent);
+      if (!parent) {
+        console.log('NAVIGATE_SIBLING - No parent found, returning');
+        return state;
+      }
 
       const parentNode = state.loom.nodes.get(parent);
-      if (!parentNode) return state;
+      console.log('NAVIGATE_SIBLING - Parent node:', parentNode);
+      if (!parentNode) {
+        console.log('NAVIGATE_SIBLING - Parent node not found, returning');
+        return state;
+      }
 
       const siblings = parentNode.children;
       const currentIndex = siblings.indexOf(currentNode);
-      if (currentIndex === -1) return state;
+      console.log('NAVIGATE_SIBLING - Siblings:', siblings);
+      console.log('NAVIGATE_SIBLING - Current index:', currentIndex);
+      if (currentIndex === -1) {
+        console.log('NAVIGATE_SIBLING - Current node not found in siblings, returning');
+        return state;
+      }
 
       let newIndex: number;
       if (action.direction === 'next') {
@@ -25,9 +40,33 @@ export function reducer(state: Model, action: Action): Model {
           ? (currentIndex - 1 + siblings.length) % siblings.length
           : Math.max(currentIndex - 1, 0);
       }
+      console.log('NAVIGATE_SIBLING - New index:', newIndex);
+      console.log('NAVIGATE_SIBLING - New sibling:', siblings[newIndex]);
 
-      const newPath = [...state.viewState.currentPath];
-      newPath[newPath.length - 1] = siblings[newIndex];
+      // Find the index of the current node in the path
+      const pathIndex = state.viewState.currentPath.indexOf(currentNode);
+      if (pathIndex === -1) {
+        console.log('NAVIGATE_SIBLING - Node not found in current path, returning');
+        return state;
+      }
+
+      // Create a new path starting with the unchanged prefix up to the navigated node
+      const newPath = state.viewState.currentPath.slice(0, pathIndex);
+      
+      // Add the new sibling
+      const newSiblingId = siblings[newIndex];
+      newPath.push(newSiblingId);
+      
+      // Follow first child path from the new sibling
+      let currentId = newSiblingId;
+      while (true) {
+        const node = state.loom.nodes.get(currentId);
+        if (!node || node.children.length === 0) break;
+        currentId = node.children[0];
+        newPath.push(currentId);
+      }
+
+      console.log('NAVIGATE_SIBLING - New path:', newPath);
 
       return {
         ...state,
@@ -166,6 +205,16 @@ export function reducer(state: Model, action: Action): Model {
         viewState: {
           ...state.viewState,
           expanded,
+        },
+      };
+    }
+
+    case 'SET_VIEW_TYPE': {
+      return {
+        ...state,
+        viewState: {
+          ...state.viewState,
+          viewType: action.viewType,
         },
       };
     }
