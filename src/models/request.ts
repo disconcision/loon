@@ -1,14 +1,14 @@
 import { Node, ModelCard, Source } from "@/types/model";
 
 type ChatMessage = {
-  role: "user" | "assistant" | "system";
+  role: "you" | "assistant" | "system";
   content: string;
 };
 
 // Convert our source types to chat roles
 function sourceToRole(source: Source): ChatMessage["role"] {
   switch (source) {
-    case "human": return "user";
+    case "human": return "you";
     case "model": return "assistant";
     case "system": return "system";
   }

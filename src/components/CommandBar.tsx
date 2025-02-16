@@ -12,12 +12,20 @@ export function CommandBar() {
   const [selectedIndex, setSelectedIndex] = useState(0);
   const isFocused = state.viewState.focus.commandBar;
   const theme = themes[state.viewState.themeMode];
+  const inputRef = useRef<HTMLInputElement>(null);
 
   // Get the current suggestion's completion text
   const currentSuggestion = suggestions[selectedIndex]?.text || "";
   const ghostText = currentSuggestion.startsWith(userText)
     ? currentSuggestion.slice(userText.length)
     : "";
+
+  // Focus input when commandBar focus state changes
+  useEffect(() => {
+    if (isFocused && inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, [isFocused]);
 
   // Update suggestions when user typed text changes
   useEffect(() => {
@@ -34,6 +42,22 @@ export function CommandBar() {
 
   const handleKeyDown = useCallback(
     (e: KeyboardEvent) => {
+      // Handle Escape regardless of suggestions
+      if (e.key === "Escape") {
+        e.preventDefault();
+        setSuggestions([]);
+        // Focus back on the last selected node
+        if (state.viewState.currentPath.length > 0) {
+          dispatch({
+            type: "FOCUS_NODE",
+            id: state.viewState.currentPath[
+              state.viewState.currentPath.length - 1
+            ],
+          });
+        }
+        return;
+      }
+
       if (suggestions.length === 0) return;
 
       switch (e.key) {
@@ -60,13 +84,15 @@ export function CommandBar() {
             setUserText(currentSuggestion);
           }
           break;
-        case "Escape":
-          e.preventDefault();
-          setSuggestions([]);
-          break;
       }
     },
-    [suggestions, ghostText, currentSuggestion]
+    [
+      suggestions,
+      ghostText,
+      currentSuggestion,
+      dispatch,
+      state.viewState.currentPath,
+    ]
   );
 
   const handleInput = useCallback((e: Event) => {
@@ -130,6 +156,7 @@ export function CommandBar() {
       >
         <div className="input-container">
           <input
+            ref={inputRef}
             type="text"
             value={userText}
             onInput={handleInput}
@@ -164,22 +191,21 @@ export function CommandBar() {
       <style jsx>{`
         .command-container {
           position: fixed;
-          top: 0;
+          bottom: 0;
           left: 0;
           right: 0;
           z-index: 100;
         }
 
         .command-bar {
-          padding: 8px;
           background: ${theme.surface};
-          border-bottom: 1px solid ${theme.border};
+          border-top: 1px solid ${theme.border};
           transition: all 0.2s;
         }
 
         .command-bar.focused {
           background: ${theme.surfaceSelected};
-          border-bottom-color: ${theme.borderSelected};
+          border-top-color: ${theme.borderSelected};
         }
 
         .input-container {
@@ -192,11 +218,11 @@ export function CommandBar() {
           padding: 8px;
           font-family: monospace;
           font-size: 14px;
-          color: ${isFocused ? "transparent" : theme.text};
-          caret-color: ${theme.text};
+          color: #e0e0e0;
+          caret-color: #e0e0e0;
           background: transparent;
-          border: 1px solid ${theme.border};
-          border-radius: 4px;
+          border-top: 1px solid #404040;
+          border-radius: 0px;
           outline: none;
           transition: all 0.2s;
         }
@@ -234,16 +260,20 @@ export function CommandBar() {
         }
 
         .suggestions {
+          position: absolute;
+          bottom: 100%;
+          left: 0;
+          right: 0;
           background: ${theme.surface};
           border: 1px solid ${theme.border};
-          border-top: none;
-          border-radius: 0 0 4px 4px;
+          border-bottom: none;
+          border-radius: 4px 4px 0 0;
           max-height: 200px;
           overflow-y: auto;
         }
 
         .suggestion {
-          padding: 8px 12px;
+          padding: 6px 6px;
           cursor: pointer;
           transition: all 0.2s;
         }

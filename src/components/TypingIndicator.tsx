@@ -19,10 +19,10 @@ export function TypingIndicator() {
           padding: 8px;
         }
         span {
-          animation: bounce 1s infinite;
+          /* animation: bounce 1s infinite; */
           color: ${theme.textDim};
-          font-size: 24px;
-          line-height: 8px;
+          font-size: inherit;
+          line-height: 1.2;
         }
         span:nth-child(2) {
           animation-delay: 0.2s;

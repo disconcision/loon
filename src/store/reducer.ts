@@ -205,6 +205,83 @@ export function reducer(state: Model, action: Action): Model {
       };
     }
 
+    case 'CREATE_CHILD_NODE': {
+      const parentNode = state.loom.nodes.get(action.parentId);
+      if (!parentNode) return state;
+
+      const newId = crypto.randomUUID();
+      const nodes = new Map(state.loom.nodes);
+
+      // Create new child node
+      nodes.set(newId, {
+        id: newId,
+        message: {
+          content: "",
+          source: "human",
+          timestamp: new Date(),
+        },
+        parent: action.parentId,
+        children: [],
+        isEdited: false,
+      });
+
+      // Update parent's children
+      nodes.set(action.parentId, {
+        ...parentNode,
+        children: [...parentNode.children, newId],
+      });
+
+      return {
+        ...state,
+        loom: {
+          ...state.loom,
+          nodes,
+        },
+        viewState: {
+          ...state.viewState,
+          expanded: new Set([...state.viewState.expanded, action.parentId]),
+          focus: {
+            ...state.viewState.focus,
+            selectedNode: newId,
+          },
+        },
+      };
+    }
+
+    case 'DELETE_NODE': {
+      const nodeToDelete = state.loom.nodes.get(action.id);
+      if (!nodeToDelete || !nodeToDelete.parent) return state;
+
+      const parentNode = state.loom.nodes.get(nodeToDelete.parent);
+      if (!parentNode) return state;
+
+      // Create new nodes map without the deleted node
+      const nodes = new Map(state.loom.nodes);
+      nodes.delete(action.id);
+
+      // Update parent's children list
+      const updatedChildren = parentNode.children.filter(id => id !== action.id);
+      nodes.set(nodeToDelete.parent, {
+        ...parentNode,
+        children: updatedChildren,
+      });
+
+      return {
+        ...state,
+        loom: {
+          ...state.loom,
+          nodes,
+        },
+        viewState: {
+          ...state.viewState,
+          focus: {
+            ...state.viewState.focus,
+            selectedNode: nodeToDelete.parent,
+          },
+        },
+      };
+    }
+
     case 'SET_NODE_EXPANDED': {
       const expanded = new Set(state.viewState.expanded);
       if (action.expanded) {
@@ -343,7 +420,10 @@ export function reducer(state: Model, action: Action): Model {
 
       const nodes = new Map(state.loom.nodes);
       nodes.set(action.nodeId, {
-        ...node,
+        id: action.nodeId,
+        parent: node.parent,
+        children: node.children,
+        isEdited: false,
         message: {
           content: action.content,
           source: "model",

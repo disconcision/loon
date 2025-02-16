@@ -14,7 +14,7 @@ export function generateDummyData(): Map<NodeId, Node> {
   // Root node
   const root: Node = {
     id: 'root',
-    message: createMessage('Welcome to Loon! Try asking a question or use commands like "view", "theme", or "@go".', 'system'),
+    message: createMessage('You are in a twisty maze of weltanschauungen all alike', 'system'),
     children: ['q1', 'q2', 'q3', 'q4', 'q5'],
     isEdited: false,
   };
@@ -23,7 +23,7 @@ export function generateDummyData(): Map<NodeId, Node> {
   // Question 1: Science
   const q1: Node = {
     id: 'q1',
-    message: createMessage('What causes the northern lights?', 'human'),
+    message: createMessage('Is the ontology of tlon uqbar orbis tertius truly truly truly contagious?', 'human'),
     parent: 'root',
     children: ['a1'],
     isEdited: false,
@@ -42,7 +42,7 @@ export function generateDummyData(): Map<NodeId, Node> {
   // Question 2: Pop Culture
   const q2: Node = {
     id: 'q2',
-    message: createMessage('Why do cats knock things off tables?', 'human'),
+    message: createMessage('Must the sun collide into itself?', 'human'),
     parent: 'root',
     children: ['a2'],
     isEdited: false,
@@ -51,7 +51,7 @@ export function generateDummyData(): Map<NodeId, Node> {
 
   const a2: Node = {
     id: 'a2',
-    message: createMessage('Cats knock things over for several reasons: to test gravity (yes, really), to get attention, out of curiosity, or simply because they find it entertaining. It\'s a form of play that also helps them practice their hunting skills.', 'model'),
+    message: createMessage('Such a thing must not be', 'model'),
     parent: 'q2',
     children: [],
     isEdited: false,
@@ -61,7 +61,7 @@ export function generateDummyData(): Map<NodeId, Node> {
   // Question 3: Technology
   const q3: Node = {
     id: 'q3',
-    message: createMessage('What\'s the difference between RAM and ROM?', 'human'),
+    message: createMessage('What is the difference between a camel and a child?', 'human'),
     parent: 'root',
     children: ['a3'],
     isEdited: false,
@@ -70,7 +70,7 @@ export function generateDummyData(): Map<NodeId, Node> {
 
   const a3: Node = {
     id: 'a3',
-    message: createMessage('RAM (Random Access Memory) is temporary, fast memory used for running programs. It\'s wiped when you turn off your device. ROM (Read Only Memory) is permanent storage that keeps data even without power, like your phone\'s operating system.', 'model'),
+    message: createMessage('The cloud of unknowing decends nightly', 'model'),
     parent: 'q3',
     children: [],
     isEdited: false,
@@ -80,7 +80,7 @@ export function generateDummyData(): Map<NodeId, Node> {
   // Question 4: Philosophy
   const q4: Node = {
     id: 'q4',
-    message: createMessage('If a tree falls in a forest and no one is around to hear it, does it make a sound?', 'human'),
+    message: createMessage('Where do leaden circles dissolve in the air?', 'human'),
     parent: 'root',
     children: ['a4'],
     isEdited: false,
@@ -89,7 +89,7 @@ export function generateDummyData(): Map<NodeId, Node> {
 
   const a4: Node = {
     id: 'a4',
-    message: createMessage('It depends on how you define "sound". If sound is the physical vibration of air molecules, then yes. If sound is the perception of those vibrations by a consciousness, then no. This paradox highlights the difference between physical phenomena and conscious experience.', 'model'),
+    message: createMessage('It depends on how you define "sound".', 'model'),
     parent: 'q4',
     children: [],
     isEdited: false,

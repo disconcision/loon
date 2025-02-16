@@ -13,7 +13,9 @@ export type ContentAction =
   | { type: "EDIT_NODE"; id: NodeId; content: string }
   | { type: "RESIZE_NODE"; id: NodeId; height: number }
   | { type: "SET_NODE_EXPANDED"; id: NodeId; expanded: boolean }
-  | { type: "LOAD_NODES"; nodes: Map<NodeId, Node> };
+  | { type: "LOAD_NODES"; nodes: Map<NodeId, Node> }
+  | { type: "CREATE_CHILD_NODE"; parentId: NodeId }
+  | { type: "DELETE_NODE"; id: NodeId };
 
 export type ModelAction =
   | { 
