@@ -23,18 +23,28 @@ export function MessageNode({ id, node }: Props) {
 
   // Update textarea height to match content
   const updateTextareaHeight = useCallback(() => {
-    if (textareaRef.current && contentRef.current) {
+    if (textareaRef.current) {
       // First set height to 0 to get the proper scrollHeight
       textareaRef.current.style.height = "0";
-      textareaRef.current.style.height = `${contentRef.current.offsetHeight}px`;
+      textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
     }
   }, []);
 
   // Handle entering edit mode
   const enterEditMode = useCallback(() => {
+    // Measure content height before switching to edit mode
+    const contentHeight = contentRef.current?.offsetHeight;
     setIsEditing(true);
     setEditedContent(node.message.content);
-  }, [node.message.content]);
+    // After switching to edit mode, set initial textarea height
+    requestAnimationFrame(() => {
+      if (textareaRef.current && contentHeight) {
+        textareaRef.current.style.height = `${contentHeight}px`;
+        // Then let it adjust to its content
+        updateTextareaHeight();
+      }
+    });
+  }, [node.message.content, updateTextareaHeight]);
 
   useEffect(() => {
     if (isEditing) {
@@ -60,28 +70,68 @@ export function MessageNode({ id, node }: Props) {
     enterEditMode();
   }, [enterEditMode]);
 
-  const handleBlur = useCallback(() => {
-    setIsEditing(false);
-    if (editedContent !== node.message.content) {
-      dispatch({ type: "EDIT_NODE", id, content: editedContent });
-    }
-  }, [dispatch, editedContent, id, node.message.content]);
-
   const handleKeyDown = useCallback(
     (e: KeyboardEvent) => {
       if (isEditing) {
         if (e.key === "Enter" && !e.shiftKey) {
           e.preventDefault();
-          textareaRef.current?.blur();
+          if (editedContent !== node.message.content) {
+            dispatch({ type: "EDIT_NODE", id, content: editedContent });
+          }
+          exitEditMode();
         } else if (e.key === "Escape") {
           e.preventDefault();
           setEditedContent(node.message.content);
-          textareaRef.current?.blur();
+          exitEditMode();
+        } else if (
+          ["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].includes(e.key)
+        ) {
+          const textarea = textareaRef.current;
+          if (!textarea) return;
+
+          const { selectionStart, selectionEnd, value } = textarea;
+
+          // Check if we should surrender control based on cursor position and key
+          const shouldSurrender =
+            (e.key === "ArrowUp" && selectionStart === 0) ||
+            (e.key === "ArrowDown" && selectionEnd === value.length) ||
+            (e.key === "ArrowLeft" && selectionStart === 0) ||
+            (e.key === "ArrowRight" && selectionEnd === value.length);
+
+          if (shouldSurrender) {
+            e.preventDefault();
+            if (editedContent !== node.message.content) {
+              dispatch({ type: "EDIT_NODE", id, content: editedContent });
+            }
+            exitEditMode();
+          }
+          // Otherwise let the textarea handle the arrow key normally
         }
       }
     },
-    [isEditing, node.message.content]
+    [isEditing, node.message.content, editedContent, dispatch, id]
   );
+
+  // Handle exiting edit mode
+  const exitEditMode = useCallback(() => {
+    setIsEditing(false);
+    // Explicitly blur the textarea
+    textareaRef.current?.blur();
+    // Focus the ViewContainer
+    const container = document.querySelector(".view-container");
+    if (container instanceof HTMLElement) {
+      container.focus();
+    }
+  }, []);
+
+  const handleBlur = useCallback(() => {
+    if (isEditing) {
+      setIsEditing(false);
+      if (editedContent !== node.message.content) {
+        dispatch({ type: "EDIT_NODE", id, content: editedContent });
+      }
+    }
+  }, [dispatch, editedContent, id, node.message.content, isEditing]);
 
   // Listen for ENTER_EDIT_MODE action
   useEffect(() => {
@@ -127,7 +177,6 @@ export function MessageNode({ id, node }: Props) {
       data-source={node.message.source}
       onKeyDown={handleKeyDown}
       onClick={handleClick}
-      tabIndex={-1}
     >
       {isEditing ? (
         <pre className="content">

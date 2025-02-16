@@ -11,7 +11,7 @@ export function ViewContainer() {
 
   // Handle keyboard shortcut for view switching
   useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
+    const handleViewSwitch = (e: KeyboardEvent) => {
       if (e.altKey && e.key.toLowerCase() === "v") {
         e.preventDefault(); // Prevent any default browser shortcuts
         dispatch({
@@ -21,13 +21,13 @@ export function ViewContainer() {
       }
     };
 
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
+    window.addEventListener("keydown", handleViewSwitch);
+    return () => window.removeEventListener("keydown", handleViewSwitch);
   }, [dispatch, viewType]);
 
   // Handle keyboard navigation and deletion
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
+  const handleKeyDown = useCallback(
+    (e: KeyboardEvent) => {
       // Only handle navigation when command bar is not focused
       if (state.viewState.focus.commandBar) return;
 
@@ -111,7 +111,6 @@ export function ViewContainer() {
               !node.children.length ||
               !state.viewState.expanded.has(selectedNode)
             ) {
-              // We'll need to add an action for this
               dispatch({ type: "ENTER_EDIT_MODE", id: selectedNode });
               return;
             }
@@ -128,11 +127,9 @@ export function ViewContainer() {
       if (nextNodeId) {
         dispatch({ type: "FOCUS_NODE", id: nextNodeId });
       }
-    };
-
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [dispatch, state]);
+    },
+    [dispatch, state]
+  );
 
   // Handle clicks on the container to focus nodes
   const handleContainerClick = useCallback(
@@ -148,6 +145,8 @@ export function ViewContainer() {
             state.viewState.focus.selectedNode || state.loom.root;
           dispatch({ type: "FOCUS_NODE", id: nodeToFocus });
         }
+        // Ensure container has focus for keyboard events
+        (e.currentTarget as HTMLElement).focus();
       }
     },
     [
@@ -159,7 +158,13 @@ export function ViewContainer() {
   );
 
   return (
-    <div className="view-container" onClick={handleContainerClick}>
+    <div
+      className="view-container"
+      onClick={handleContainerClick}
+      onKeyDown={handleKeyDown}
+      tabIndex={0} // Make container focusable
+      style={{ outline: "none" }} // Hide focus ring
+    >
       {viewType === "forest" ? <ForestView /> : <PathView />}
       <style jsx>{`
         .view-container {
