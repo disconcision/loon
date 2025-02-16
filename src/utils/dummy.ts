@@ -89,7 +89,7 @@ export function generateDummyData(): Map<NodeId, Node> {
 
   const a4: Node = {
     id: 'a4',
-    message: createMessage('It depends on how you define "sound".', 'model'),
+    message: createMessage('HARK;', 'model'),
     parent: 'q4',
     children: [],
     isEdited: false,
@@ -99,7 +99,7 @@ export function generateDummyData(): Map<NodeId, Node> {
   // Question 5: Humor
   const q5: Node = {
     id: 'q5',
-    message: createMessage('Why did the programmer quit his job?', 'human'),
+    message: createMessage('describe the weight of winter', 'human'),
     parent: 'root',
     children: ['a5'],
     isEdited: false,
@@ -108,7 +108,7 @@ export function generateDummyData(): Map<NodeId, Node> {
 
   const a5: Node = {
     id: 'a5',
-    message: createMessage('Because he didn\'t get arrays! 🤓\n\n(That\'s a programming joke - "arrays" sounds like "a raise")', 'model'),
+    message: createMessage('The weight of winter is a physical and metaphysical force that', 'model'),
     parent: 'q5',
     children: [],
     isEdited: false,

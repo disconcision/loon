@@ -273,9 +273,11 @@ export function CommandBar() {
         }
 
         .suggestion {
-          padding: 6px 6px;
+          padding: 2px 8px;
           cursor: pointer;
           transition: all 0.2s;
+          display: flex;
+          gap: 1ch;
         }
 
         .suggestion:hover,

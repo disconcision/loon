@@ -9,9 +9,16 @@ import { TypingIndicator } from "./TypingIndicator";
 interface Props {
   id: NodeId;
   node: Node;
+  hasChildren?: boolean;
+  isExpanded?: boolean;
 }
 
-export function MessageNode({ id, node }: Props) {
+export function MessageNode({
+  id,
+  node,
+  hasChildren = false,
+  isExpanded = false,
+}: Props) {
   const { state, dispatch } = useStore();
   const theme = themes[state.viewState.themeMode];
   const [isEditing, setIsEditing] = useState(false);
@@ -45,6 +52,13 @@ export function MessageNode({ id, node }: Props) {
       }
     });
   }, [node.message.content, updateTextareaHeight]);
+
+  // Handle expanding/collapsing
+  const handleExpand = useCallback(() => {
+    if (hasChildren) {
+      dispatch({ type: "SET_NODE_EXPANDED", id, expanded: !isExpanded });
+    }
+  }, [dispatch, id, hasChildren, isExpanded]);
 
   useEffect(() => {
     if (isEditing) {
@@ -180,6 +194,9 @@ export function MessageNode({ id, node }: Props) {
     >
       {isEditing ? (
         <pre className="content">
+          {hasChildren && (
+            <span className="expander-space">{isExpanded ? "▾" : "▸"}</span>
+          )}
           <span className="source-label">{sourceLabel}:</span>
           <textarea
             ref={textareaRef}
@@ -200,6 +217,17 @@ export function MessageNode({ id, node }: Props) {
           onClick={handleClick}
           onDblClick={handleDoubleClick}
         >
+          {hasChildren && (
+            <span
+              className="expander-space"
+              onClick={(e) => {
+                e.stopPropagation();
+                handleExpand();
+              }}
+            >
+              {isExpanded ? "▾" : "▸"}
+            </span>
+          )}
           <span className="source-label">{sourceLabel}:</span>
           <span className="message-text">
             {isPlaceholder ? <TypingIndicator /> : node.message.content}
@@ -247,19 +275,47 @@ export function MessageNode({ id, node }: Props) {
           display: block;
         }
 
+        .expander-space {
+          display: inline-block;
+          width: 1ch;
+          color: ${theme.textDim};
+          cursor: ${hasChildren ? "pointer" : "default"};
+          user-select: none;
+        }
+
         .message-text {
           padding: 0 4px;
+          min-height: 1.2em;
+          display: inline-block;
         }
 
         .message-text:hover {
           background: ${theme.backgroundAlt2};
         }
 
+        .message-text .typing-indicator {
+          display: inline-block;
+          padding: 0;
+          line-height: inherit;
+        }
+
         .source-label {
           display: inline-block;
-          padding: 0 4px;
-          background: ${theme[node.message.source]};
-          color: ${theme.textDim};
+
+          background: ${theme.backgroundAlt2};
+          font-weight: 500;
+        }
+
+        .message-node[data-source="human"] .source-label {
+          color: ${theme.human};
+        }
+
+        .message-node[data-source="model"] .source-label {
+          color: ${theme.model};
+        }
+
+        .message-node[data-source="system"] .source-label {
+          color: ${theme.system};
         }
 
         .message-node[data-pending="true"] .source-label {

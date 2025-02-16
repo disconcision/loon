@@ -3,6 +3,28 @@ import { Action } from '@/types/actions';
 
 export function reducer(state: Model, action: Action): Model {
   switch (action.type) {
+    case 'LOAD_NODES': {
+      return {
+        ...state,
+        loom: {
+          ...state.loom,
+          nodes: action.nodes,
+        },
+      };
+    }
+
+    case 'LOAD_VIEW_STATE': {
+      // Ensure expanded is a Set and not a plain object after deserialization
+      const expanded = new Set(action.viewState.expanded);
+      return {
+        ...state,
+        viewState: {
+          ...action.viewState,
+          expanded,
+        },
+      };
+    }
+
     case 'NAVIGATE_SIBLING': {
       const currentNode = action.nodeId;
       console.log('NAVIGATE_SIBLING - Current node:', currentNode);

@@ -12,29 +12,21 @@ interface Props {
 }
 
 export function TreeNodeWrapper({ id, node, depth = 0 }: Props) {
-  const { state, dispatch } = useStore();
+  const { state } = useStore();
   const theme = themes[state.viewState.themeMode];
   const isExpanded = state.viewState.expanded.has(id);
-
-  const handleExpand = useCallback(() => {
-    dispatch({ type: "SET_NODE_EXPANDED", id, expanded: !isExpanded });
-  }, [dispatch, id, isExpanded]);
 
   return (
     <div className="tree-node-wrapper">
       <div className="node-row">
         <div className="message-container">
-          <MessageNode id={id} node={node} />
+          <MessageNode
+            id={id}
+            node={node}
+            hasChildren={node.children.length > 0}
+            isExpanded={isExpanded}
+          />
         </div>
-        {node.children.length > 0 && (
-          <button
-            className="expand-button"
-            onClick={handleExpand}
-            style={{ color: theme.textDim }}
-          >
-            {isExpanded ? "▼" : "▶"}
-          </button>
-        )}
       </div>
       {isExpanded && node.children.length > 0 && (
         <div className="children">
@@ -65,17 +57,6 @@ export function TreeNodeWrapper({ id, node, depth = 0 }: Props) {
         .message-container {
           flex: 1;
           min-width: 0;
-        }
-
-        .expand-button {
-          background: none;
-          border: none;
-          cursor: pointer;
-          padding: 0 4px;
-          font-size: 12px;
-          line-height: inherit;
-          transition: color 0.2s;
-          flex-shrink: 0;
         }
 
         .children {
