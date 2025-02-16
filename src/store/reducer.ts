@@ -282,6 +282,14 @@ export function reducer(state: Model, action: Action): Model {
       };
     }
 
+    case 'ENTER_EDIT_MODE': {
+      // Dispatch a custom event that will be caught by the MessageNode component
+      window.dispatchEvent(
+        new CustomEvent('ENTER_EDIT_MODE', { detail: { id: action.id } })
+      );
+      return state;
+    }
+
     case 'SET_NODE_EXPANDED': {
       const expanded = new Set(state.viewState.expanded);
       if (action.expanded) {

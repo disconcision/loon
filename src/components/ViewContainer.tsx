@@ -56,6 +56,13 @@ export function ViewContainer() {
             return;
           }
           break;
+        case "Enter":
+          if (!e.shiftKey) {
+            e.preventDefault();
+            dispatch({ type: "CREATE_CHILD_NODE", parentId: selectedNode });
+            return;
+          }
+          break;
         case "ArrowUp":
           e.preventDefault();
           nextNodeId = navigateFrom(selectedNode, { type: "PREV" }, flattened);
@@ -99,7 +106,16 @@ export function ViewContainer() {
               });
             }
           } else {
-            // Navigate to first child if expanded
+            // Enter edit mode if not expanded or no children
+            if (
+              !node.children.length ||
+              !state.viewState.expanded.has(selectedNode)
+            ) {
+              // We'll need to add an action for this
+              dispatch({ type: "ENTER_EDIT_MODE", id: selectedNode });
+              return;
+            }
+            // Otherwise navigate to first child if expanded
             nextNodeId = navigateFrom(
               selectedNode,
               { type: "FIRST_CHILD" },

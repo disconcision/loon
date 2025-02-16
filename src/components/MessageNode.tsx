@@ -78,20 +78,24 @@ export function MessageNode({ id, node }: Props) {
           setEditedContent(node.message.content);
           textareaRef.current?.blur();
         }
-      } else if (isSelected) {
-        // Handle navigation when not editing
-        if (e.key === "ArrowRight") {
-          e.preventDefault();
-          enterEditMode();
-        } else if (e.key === "Enter" && !e.shiftKey) {
-          e.preventDefault();
-          // Create new child node
-          dispatch({ type: "CREATE_CHILD_NODE", parentId: id });
-        }
       }
     },
-    [isEditing, isSelected, enterEditMode, node.message.content, dispatch, id]
+    [isEditing, node.message.content]
   );
+
+  // Listen for ENTER_EDIT_MODE action
+  useEffect(() => {
+    if (isSelected && !isEditing) {
+      const handleEditMode = (e: CustomEvent) => {
+        if (e.detail?.id === id) {
+          enterEditMode();
+        }
+      };
+      window.addEventListener("ENTER_EDIT_MODE" as any, handleEditMode);
+      return () =>
+        window.removeEventListener("ENTER_EDIT_MODE" as any, handleEditMode);
+    }
+  }, [isSelected, isEditing, id, enterEditMode]);
 
   // Update height when content changes
   useEffect(() => {
@@ -123,7 +127,7 @@ export function MessageNode({ id, node }: Props) {
       data-source={node.message.source}
       onKeyDown={handleKeyDown}
       onClick={handleClick}
-      tabIndex={0}
+      tabIndex={-1}
     >
       {isEditing ? (
         <pre className="content">

@@ -15,7 +15,8 @@ export type ContentAction =
   | { type: "SET_NODE_EXPANDED"; id: NodeId; expanded: boolean }
   | { type: "LOAD_NODES"; nodes: Map<NodeId, Node> }
   | { type: "CREATE_CHILD_NODE"; parentId: NodeId }
-  | { type: "DELETE_NODE"; id: NodeId };
+  | { type: "DELETE_NODE"; id: NodeId }
+  | { type: "ENTER_EDIT_MODE"; id: NodeId };
 
 export type ModelAction =
   | { 
