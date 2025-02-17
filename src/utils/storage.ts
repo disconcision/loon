@@ -1,5 +1,5 @@
 import { openDB, DBSchema } from 'idb';
-import { Model, Node, NodeId, ViewState } from '@/types/model';
+import { Node, NodeId, ViewState } from '@/types/model';
 
 interface LoonDB extends DBSchema {
   nodes: {
@@ -17,7 +17,7 @@ const DB_VERSION = 2;  // Increment version for schema change
 
 export async function initDB() {
   return openDB<LoonDB>(DB_NAME, DB_VERSION, {
-    upgrade(db, oldVersion) {
+    upgrade(db) {
       // Create nodes store if it doesn't exist
       if (!db.objectStoreNames.contains('nodes')) {
         db.createObjectStore('nodes', { keyPath: 'id' });

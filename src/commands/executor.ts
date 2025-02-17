@@ -7,7 +7,7 @@ import { requestCompletion } from "@/models/request";
 export function executeCommand(
   command: Command, 
   currentViewType: ViewType,
-  currentPath: Node[],
+  _pathNodes: Node[],
   dispatch: (action: Action) => void,
   state: Model
 ): Action | null {

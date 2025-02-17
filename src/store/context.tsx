@@ -1,6 +1,6 @@
 import { createContext } from "preact";
 import { useContext } from "preact/hooks";
-import { Model, NodeId } from "@/types/model";
+import { Model } from "@/types/model";
 import { Action } from "@/types/actions";
 import { generateDummyData } from "@/utils/dummy";
 
@@ -24,14 +24,13 @@ const initialState: Model = {
     apiKeys: {},
     modelCards: {
       go: {
+        name: "Llama 3.3 70B Instruct",
+        model: "meta-llama/llama-3.3-70b-instruct:free",
+        format: "chat",
         endpoint: "https://openrouter.ai/api/v1/chat/completions",
         parameters: {
           temperature: 0.7,
-          maxTokens: 1000,
-        },
-        headers: {},
-        rateLimit: {
-          requestsPerMinute: 50,
+          max_tokens: 1000,
         },
       },
     },

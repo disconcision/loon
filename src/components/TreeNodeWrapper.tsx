@@ -1,7 +1,6 @@
 /** @jsxImportSource preact */
 import { Node, NodeId } from "@/types/model";
 import { useStore } from "@/store/context";
-import { useCallback } from "preact/hooks";
 import { themes } from "@/styles/themes";
 import { MessageNode } from "./MessageNode";
 

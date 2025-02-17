@@ -33,6 +33,7 @@ jobs:
           pnpm --version
           source /home/runner/.bashrc
           pnpm install
+          pnpm run lint
           pnpm run build
         working-directory: ./source
 

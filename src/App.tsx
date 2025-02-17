@@ -54,7 +54,7 @@ function AppContent() {
     <div className="app">
       <ViewContainer />
       <CommandBar />
-      <style jsx global>{`
+      <style>{`
         body {
           margin: 0;
           background: ${theme.background};
