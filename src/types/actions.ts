@@ -3,8 +3,7 @@ import { NodeId, Config, ViewType, Node, ViewState } from './model';
 export type NavigationAction =
   | { type: "NAVIGATE_SIBLING"; direction: "prev" | "next"; nodeId: NodeId }
   | { type: "NAVIGATE_VERTICAL"; direction: "up" | "down" }
-  | { type: "FOCUS_NODE"; id: NodeId }
-  | { type: "FOCUS_COMMAND_BAR" }
+  | { type: "SET_FOCUS"; focus: ViewState["focus"] }
   | { type: "SET_VIEW_TYPE"; viewType: ViewType }
   | { type: "TOGGLE_THEME" }
   | { type: "LOAD_VIEW_STATE"; viewState: ViewState };

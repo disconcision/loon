@@ -1,4 +1,4 @@
-import { Model, NodeId } from '@/types/model';
+import { Model } from '@/types/model';
 import { Action } from '@/types/actions';
 
 export function reducer(state: Model, action: Action): Model {
@@ -95,10 +95,7 @@ export function reducer(state: Model, action: Action): Model {
         viewState: {
           ...state.viewState,
           currentPath: newPath,
-          focus: {
-            ...state.viewState.focus,
-            selectedNode: newSiblingId,
-          },
+          focus: { type: "node", id: newSiblingId },
         },
       };
     }
@@ -125,39 +122,32 @@ export function reducer(state: Model, action: Action): Model {
       };
     }
 
-    case 'FOCUS_NODE': {
-      // Build path to focused node
-      const newPath: NodeId[] = [];
-      let currentId: NodeId | undefined = action.id;
-      
-      while (currentId) {
-        newPath.unshift(currentId);
-        const node = state.loom.nodes.get(currentId);
-        currentId = node?.parent;
-      }
-
+    case 'SET_FOCUS': {
       return {
         ...state,
         viewState: {
           ...state.viewState,
-          currentPath: newPath,
-          focus: {
-            commandBar: false,
-            selectedNode: action.id,
-          },
+          focus: action.focus,
         },
       };
     }
 
-    case 'FOCUS_COMMAND_BAR': {
+    case 'SET_VIEW_TYPE': {
       return {
         ...state,
         viewState: {
           ...state.viewState,
-          focus: {
-            ...state.viewState.focus,
-            commandBar: true,
-          },
+          viewType: action.viewType,
+        },
+      };
+    }
+
+    case 'TOGGLE_THEME': {
+      return {
+        ...state,
+        viewState: {
+          ...state.viewState,
+          themeMode: state.viewState.themeMode === 'dark' ? 'light' : 'dark',
         },
       };
     }
@@ -262,10 +252,7 @@ export function reducer(state: Model, action: Action): Model {
         viewState: {
           ...state.viewState,
           expanded: new Set([...state.viewState.expanded, action.parentId]),
-          focus: {
-            ...state.viewState.focus,
-            selectedNode: newId,
-          },
+          focus: { type: "node", id: newId },
         },
       };
     }
@@ -296,10 +283,7 @@ export function reducer(state: Model, action: Action): Model {
         },
         viewState: {
           ...state.viewState,
-          focus: {
-            ...state.viewState.focus,
-            selectedNode: nodeToDelete.parent,
-          },
+          focus: { type: "node", id: nodeToDelete.parent },
         },
       };
     }
@@ -329,93 +313,17 @@ export function reducer(state: Model, action: Action): Model {
       };
     }
 
-    case 'SET_VIEW_TYPE': {
-      return {
-        ...state,
-        viewState: {
-          ...state.viewState,
-          viewType: action.viewType,
-        },
-      };
-    }
-
-    case 'TOGGLE_THEME': {
-      return {
-        ...state,
-        viewState: {
-          ...state.viewState,
-          themeMode: state.viewState.themeMode === 'dark' ? 'light' : 'dark',
-        },
-      };
-    }
-
-    case 'ADD_MODEL_RESPONSES': {
-      const parentNode = state.loom.nodes.get(action.parentId);
-      if (!parentNode) return state;
-
-      const nodes = new Map(state.loom.nodes);
-      const newChildren: NodeId[] = [];
-
-      // Create a new node for each response
-      action.responses.forEach(content => {
-        const newId = crypto.randomUUID();
-        nodes.set(newId, {
-          id: newId,
-          message: {
-            content,
-            source: "model",
-            timestamp: new Date(),
-          },
-          parent: action.parentId,
-          children: [],
-          isEdited: false,
-        });
-        newChildren.push(newId);
-      });
-
-      // Update parent's children
-      nodes.set(action.parentId, {
-        ...parentNode,
-        children: [...parentNode.children, ...newChildren],
-      });
-
-      return {
-        ...state,
-        loom: {
-          ...state.loom,
-          nodes,
-        },
-        viewState: {
-          ...state.viewState,
-          expanded: new Set([...state.viewState.expanded, action.parentId]),
-        },
-      };
-    }
-
-    case 'SET_NODE_PENDING': {
-      const pending = new Set(state.pending);
-      if (action.isPending) {
-        pending.add(action.nodeId);
-      } else {
-        pending.delete(action.nodeId);
-      }
-      return {
-        ...state,
-        pending,
-      };
-    }
-
     case 'ADD_PLACEHOLDER_NODE': {
       const parentNode = state.loom.nodes.get(action.parentId);
       if (!parentNode) return state;
 
       const nodes = new Map(state.loom.nodes);
-      
+
       // Create placeholder node
       nodes.set(action.nodeId, {
         id: action.nodeId,
         message: {
-          content: "",  // Empty content for placeholder
+          content: "",
           source: "model",
           timestamp: new Date(),
           metadata: { isPlaceholder: true },
@@ -431,12 +339,17 @@ export function reducer(state: Model, action: Action): Model {
         children: [...parentNode.children, action.nodeId],
       });
 
+      // Add to pending set
+      const pending = new Set(state.pending);
+      pending.add(action.nodeId);
+
       return {
         ...state,
         loom: {
           ...state.loom,
           nodes,
         },
+        pending,
         viewState: {
           ...state.viewState,
           expanded: new Set([...state.viewState.expanded, action.parentId]),
@@ -450,10 +363,7 @@ export function reducer(state: Model, action: Action): Model {
 
       const nodes = new Map(state.loom.nodes);
       nodes.set(action.nodeId, {
-        id: action.nodeId,
-        parent: node.parent,
-        children: node.children,
-        isEdited: false,
+        ...node,
         message: {
           content: action.content,
           source: "model",
@@ -462,16 +372,19 @@ export function reducer(state: Model, action: Action): Model {
         },
       });
 
+      // Remove from pending set
+      const pending = new Set(state.pending);
+      pending.delete(action.nodeId);
+
       return {
         ...state,
         loom: {
           ...state.loom,
           nodes,
         },
+        pending,
       };
     }
-
-    // Add other cases as needed...
 
     default:
       return state;

@@ -16,8 +16,8 @@ const initialState: Model = {
     currentPath: ["root"],
     expanded: new Set(["root", "post1", "post2", "post3"]),
     focus: {
-      commandBar: false,
-      selectedNode: null,
+      type: "tree",
+      indicatedNode: "root",
     },
   },
   config: {

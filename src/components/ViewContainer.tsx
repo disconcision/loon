@@ -29,12 +29,10 @@ export function ViewContainer() {
   const handleKeyDown = useCallback(
     (e: KeyboardEvent) => {
       // Only handle navigation when command bar is not focused
-      if (state.viewState.focus.commandBar) return;
+      if (state.viewState.focus.type === "command") return;
 
-      // Get currently selected node
-      const selectedNode = state.viewState.focus.selectedNode;
-      if (!selectedNode) return;
-
+      // Get currently indicated node
+      const selectedNode = state.viewState.focus.indicatedNode;
       const node = state.loom.nodes.get(selectedNode);
       if (!node) return;
 
@@ -125,7 +123,10 @@ export function ViewContainer() {
       }
 
       if (nextNodeId) {
-        dispatch({ type: "FOCUS_NODE", id: nextNodeId });
+        dispatch({
+          type: "SET_FOCUS",
+          focus: { type: "tree", indicatedNode: nextNodeId },
+        });
       }
     },
     [dispatch, state]
@@ -136,25 +137,20 @@ export function ViewContainer() {
     (e: MouseEvent) => {
       // Only handle clicks on the container itself, not its children
       if (e.target === e.currentTarget) {
-        // If command bar is focused, or no node is selected, focus a node
-        if (
-          state.viewState.focus.commandBar ||
-          !state.viewState.focus.selectedNode
-        ) {
+        // If command bar is focused, focus back on the tree
+        if (state.viewState.focus.type === "command") {
           const nodeToFocus =
-            state.viewState.focus.selectedNode || state.loom.root;
-          dispatch({ type: "FOCUS_NODE", id: nodeToFocus });
+            state.viewState.currentPath[state.viewState.currentPath.length - 1];
+          dispatch({
+            type: "SET_FOCUS",
+            focus: { type: "tree", indicatedNode: nodeToFocus },
+          });
         }
         // Ensure container has focus for keyboard events
         (e.currentTarget as HTMLElement).focus();
       }
     },
-    [
-      dispatch,
-      state.viewState.focus.commandBar,
-      state.viewState.focus.selectedNode,
-      state.loom.root,
-    ]
+    [dispatch, state.viewState.focus.type, state.viewState.currentPath]
   );
 
   return (

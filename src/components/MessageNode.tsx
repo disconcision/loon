@@ -26,7 +26,12 @@ export function MessageNode({
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const contentRef = useRef<HTMLPreElement>(null);
   const isPending = state.pending.has(id);
-  const isSelected = state.viewState.focus.selectedNode === id;
+  const hasFocus =
+    state.viewState.focus.type === "tree" &&
+    state.viewState.focus.indicatedNode === id;
+  const isIndicated = state.viewState.focus.indicatedNode === id;
+  const isCurrentPath =
+    state.viewState.currentPath[state.viewState.currentPath.length - 1] === id;
 
   // Update textarea height to match content
   const updateTextareaHeight = useCallback(() => {
@@ -76,7 +81,13 @@ export function MessageNode({
 
   const handleClick = useCallback(() => {
     if (!isEditing) {
-      dispatch({ type: "FOCUS_NODE", id });
+      dispatch({
+        type: "SET_FOCUS",
+        focus: {
+          type: "tree",
+          indicatedNode: id,
+        },
+      });
     }
   }, [dispatch, id, isEditing]);
 
@@ -149,7 +160,7 @@ export function MessageNode({
 
   // Listen for ENTER_EDIT_MODE action
   useEffect(() => {
-    if (isSelected && !isEditing) {
+    if (hasFocus && !isEditing) {
       const handleEditMode = (e: Event) => {
         const customEvent = e as CustomEvent<{ id: NodeId }>;
         if (customEvent.detail?.id === id) {
@@ -166,7 +177,7 @@ export function MessageNode({
           handleEditMode as EventListener
         );
     }
-  }, [isSelected, isEditing, id, enterEditMode]);
+  }, [hasFocus, isEditing, id, enterEditMode]);
 
   // Update height when content changes
   useEffect(() => {
@@ -194,7 +205,8 @@ export function MessageNode({
     <div
       className="message-node"
       data-pending={isPending}
-      data-selected={isSelected}
+      data-focused={hasFocus}
+      data-indicated={isIndicated}
       data-source={node.message.source}
       onKeyDown={handleKeyDown}
       onClick={handleClick}
@@ -255,8 +267,12 @@ export function MessageNode({
           background: ${theme.backgroundAlt};
         }
 
-        .message-node[data-selected="true"] {
+        .message-node[data-focused="true"] {
           border-left-color: ${theme.accent};
+        }
+
+        .message-node[data-indicated="true"]:not([data-focused="true"]) {
+          border-left-color: ${theme.textDim};
         }
 
         .content,
@@ -274,7 +290,6 @@ export function MessageNode({
           border: none;
           resize: none;
           outline: none;
-          min-height: 1.2em;
         }
 
         .content {

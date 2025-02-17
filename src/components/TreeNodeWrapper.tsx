@@ -59,8 +59,8 @@ export function TreeNodeWrapper({ id, node, depth = 0 }: Props) {
         }
 
         .children {
-          margin-left: ${depth === 0 ? 8 : 4}px;
-          padding-left: 8px;
+          margin-left: ${depth === 0 ? 4 : 4}px;
+          padding-left: 4px;
           border-left: 1px solid ${theme.border};
         }
       `}</style>

@@ -47,6 +47,7 @@ export interface ModelConfig {
 
 export type ViewType = "forest" | "path";
 export type ThemeMode = "dark" | "light";
+export type FocusType = "command" | "tree";
 
 // View state tracking
 export interface ViewState {
@@ -55,8 +56,8 @@ export interface ViewState {
   currentPath: NodeId[];  // The full path of visible nodes
   expanded: Set<NodeId>;
   focus: {
-    commandBar: boolean;
-    selectedNode: NodeId | null;  // The currently selected/focused node
+    type: FocusType;
+    indicatedNode: NodeId;  // Currently indicated node (always set)
   };
 }
 

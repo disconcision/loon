@@ -5,17 +5,16 @@ import { defaultCards } from "@/models/cards";
 import { requestCompletion } from "@/models/request";
 
 export function executeCommand(
-  command: Command, 
-  currentViewType: ViewType,
-  _pathNodes: Node[],
-  dispatch: (action: Action) => void,
-  state: Model
+  command: Command,
+  nodeId: NodeId,
+  state: Model,
+  dispatch: (action: Action) => void
 ): Action | null {
   switch (command.type) {
     case "VIEW_TOGGLE":
       return {
         type: "SET_VIEW_TYPE",
-        viewType: currentViewType === "forest" ? "path" : "forest",
+        viewType: state.viewState.viewType === "forest" ? "path" : "forest",
       };
       
     case "THEME_TOGGLE":
@@ -33,8 +32,8 @@ export function executeCommand(
       // Get API key from localStorage
       const apiKey = localStorage.getItem("openrouter_key") || undefined;
       
-      // Get the selected node
-      const selectedNodeId = state.viewState.focus.selectedNode;
+      // Get the indicated node
+      const selectedNodeId = nodeId;
       if (!selectedNodeId) {
         console.error("No node selected for model call");
         return null;

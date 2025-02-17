@@ -1,0 +1,5 @@
+---
+description: general development
+globs: @tsx
+---
+try to think in types. find type definitions relevant to the goal and think about how they'll have to change. when adding features, think about new types that will be required. when thinking about different aspects of the application, think of how we can structure our concepts using algebraic data types so to scaffold a robust, efficient ontology. we want to make the linter and typechecker work for is, as cognitive scaffolding. that involves giving it types as expressions of intention to work with. to this effect, always type annotate functions. think about how we can make illegal states unrepresentable, especially with respect to weird UI states. where we must interact with imperative DOM concepts, try to come up with systematic ways of doing it. we don't have to be dogmatic about this, this can variously take the form of internalizing some DOM functionality via observers, message intercept, or more lightweight syncronization. but in general we want to leverage types, and tests, to make sure weird UI cases don't leak between the cracks.

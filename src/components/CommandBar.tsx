@@ -1,4 +1,5 @@
 /** @jsxImportSource preact */
+import { h } from "preact";
 import { useStore } from "@/store/context";
 import { useCallback, useState, useEffect, useRef } from "preact/hooks";
 import { themes } from "@/styles/themes";
@@ -10,7 +11,7 @@ export function CommandBar() {
   const [userText, setUserText] = useState("");
   const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
   const [selectedIndex, setSelectedIndex] = useState(0);
-  const isFocused = state.viewState.focus.commandBar;
+  const isFocused = state.viewState.focus.type === "command";
   const theme = themes[state.viewState.themeMode];
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -34,11 +35,14 @@ export function CommandBar() {
   }, [userText]);
 
   const handleFocus = useCallback(() => {
-    // Only update commandBar focus, preserve textBox focus
     dispatch({
-      type: "FOCUS_COMMAND_BAR",
+      type: "SET_FOCUS",
+      focus: {
+        type: "command",
+        indicatedNode: state.viewState.focus.indicatedNode,
+      },
     });
-  }, [dispatch]);
+  }, [dispatch, state.viewState.focus.indicatedNode]);
 
   const handleKeyDown = useCallback(
     (e: KeyboardEvent) => {
@@ -46,14 +50,18 @@ export function CommandBar() {
       if (e.key === "Escape") {
         e.preventDefault();
         setSuggestions([]);
-        // Focus back on the last selected node
-        if (state.viewState.currentPath.length > 0) {
-          dispatch({
-            type: "FOCUS_NODE",
-            id: state.viewState.currentPath[
-              state.viewState.currentPath.length - 1
-            ],
-          });
+        // Focus back on the tree
+        dispatch({
+          type: "SET_FOCUS",
+          focus: {
+            type: "tree",
+            indicatedNode: state.viewState.focus.indicatedNode,
+          },
+        });
+        // Ensure ViewContainer gets keyboard focus
+        const container = document.querySelector(".view-container");
+        if (container instanceof HTMLElement) {
+          container.focus();
         }
         return;
       }
@@ -91,7 +99,7 @@ export function CommandBar() {
       ghostText,
       currentSuggestion,
       dispatch,
-      state.viewState.currentPath,
+      state.viewState.focus.indicatedNode,
     ]
   );
 
@@ -100,49 +108,30 @@ export function CommandBar() {
     setUserText(value);
   }, []);
 
-  const handleSubmit = useCallback(
-    (e: Event) => {
-      e.preventDefault();
+  const handleSubmit = async (e: Event) => {
+    e.preventDefault();
+    if (!userText.trim()) return;
 
-      const parsedCommand = parseCommand(userText.trim());
-      if (parsedCommand) {
-        // Get nodes in current path
-        const pathNodes = state.viewState.currentPath
-          .map((id) => state.loom.nodes.get(id))
-          .filter(
-            (node): node is NonNullable<typeof node> => node !== undefined
-          );
+    // Get the currently indicated node
+    const indicatedNode = state.viewState.focus.indicatedNode;
+    if (!indicatedNode) return;
 
-        const action = executeCommand(
-          parsedCommand,
-          state.viewState.viewType,
-          pathNodes,
-          dispatch,
-          state
-        );
-        if (action) {
-          dispatch(action);
-        }
-        setUserText("");
-        setSuggestions([]);
+    const command = parseCommand(userText.trim());
+    if (!command) return;
 
-        // Clear focus from command bar
-        dispatch({
-          type: "FOCUS_NODE",
-          id: state.viewState.currentPath[
-            state.viewState.currentPath.length - 1
-          ],
-        });
-      }
-    },
-    [
-      userText,
-      dispatch,
-      state.viewState.viewType,
-      state.viewState.currentPath,
-      state.loom.nodes,
-    ]
-  );
+    // Clear input and focus
+    setUserText("");
+    dispatch({
+      type: "SET_FOCUS",
+      focus: {
+        type: "tree",
+        indicatedNode,
+      },
+    });
+
+    // Execute command
+    await executeCommand(command, indicatedNode, state, dispatch);
+  };
 
   const handleSuggestionClick = useCallback((suggestion: Suggestion) => {
     setUserText(suggestion.text);
@@ -162,7 +151,7 @@ export function CommandBar() {
             onInput={handleInput}
             onFocus={handleFocus}
             onKeyDown={handleKeyDown}
-            placeholder="[☰] enter command"
+            placeholder={isFocused ? "" : "[☰] enter command"}
           />
           {isFocused && (
             <div className="ghost-container">
@@ -236,7 +225,7 @@ export function CommandBar() {
           position: absolute;
           top: 0;
           left: 0;
-          padding: 2px 8px;
+          padding: 2px 10px;
           font-family: monospace;
           pointer-events: none;
           white-space: pre;

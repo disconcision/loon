@@ -21,34 +21,38 @@ function AppContent() {
       }
 
       // Double-space to focus command bar
-      if (e.key === " " && !state.viewState.focus.commandBar) {
+      if (e.key === " " && state.viewState.focus.type === "tree") {
         const now = Date.now();
         if (now - lastSpacePress.current < 300) {
           // 300ms threshold for double-press
           e.preventDefault();
-          dispatch({ type: "FOCUS_COMMAND_BAR" });
+          dispatch({
+            type: "SET_FOCUS",
+            focus: {
+              type: "command",
+              indicatedNode: state.viewState.focus.indicatedNode,
+            },
+          });
         }
         lastSpacePress.current = now;
       }
 
-      // Escape to focus command bar when nodes are focused
-      if (
-        e.key === "Escape" &&
-        !state.viewState.focus.commandBar &&
-        state.viewState.focus.selectedNode
-      ) {
+      // Escape to toggle focus between command bar and tree
+      if (e.key === "Escape") {
         e.preventDefault();
-        dispatch({ type: "FOCUS_COMMAND_BAR" });
+        dispatch({
+          type: "SET_FOCUS",
+          focus: {
+            type: state.viewState.focus.type === "command" ? "tree" : "command",
+            indicatedNode: state.viewState.focus.indicatedNode,
+          },
+        });
       }
     };
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [
-    dispatch,
-    state.viewState.focus.commandBar,
-    state.viewState.focus.selectedNode,
-  ]);
+  }, [dispatch, state.viewState.focus]);
 
   return (
     <div className="app">
