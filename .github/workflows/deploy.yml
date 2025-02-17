@@ -1,0 +1,67 @@
+name: deploy loon
+on: [push]
+jobs:
+  Deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout loon repo on current branch
+        uses: actions/checkout@v2
+        with:
+          path: source
+
+      - name: Add name of current branch to environment
+        uses: nelonoel/branch-name@v1.0.1
+
+      - name: Retrieve build cache if exists
+        id: build-cache
+        uses: actions/cache@v2
+        with:
+          path: "/home/runner/.pnpm-store"
+          key: ${{ runner.os }}-pnpm-${{ hashFiles('./source/pnpm-lock.yaml') }}
+
+      - name: Use Node.js 21.2.0
+        uses: actions/setup-node@v3
+        with:
+          node-version: "21.2.0"
+
+      - name: Install dependencies and build loon
+        run: |
+          pwd
+          ls
+          node --version
+          npm install --global pnpm@8.10.5 && SHELL=bash pnpm setup
+          pnpm --version
+          source /home/runner/.bashrc
+          pnpm install
+          pnpm run build
+        working-directory: ./source
+
+      - name: Checkout website build artifacts repo
+        uses: actions/checkout@v2
+        with:
+          repository: ${{ github.repository_owner }}/${{ github.repository_owner }}.github.io
+          token: ${{ secrets.DEPLOY_LOON }}
+          path: server
+
+      - name: Clear any old build of this branch
+        run: if [ -d "loon/${BRANCH_NAME}" ] ; then rm -rf "loon/${BRANCH_NAME}" ; fi
+        working-directory: ./server
+
+      - name: Copy in newly built source
+        run: |
+          mkdir -p "./server/loon/${BRANCH_NAME}" &&
+          cp -r "./source/dist"/* "./server/loon/${BRANCH_NAME}" &&
+          if [ "${BRANCH_NAME}" == "main" ]
+          then
+            mkdir -p "./server/loon" &&
+            cp -r "./source/dist"/* "./server/loon"
+          fi
+
+      - name: Commit to website aka deploy
+        run: |
+          git config user.name github-deploy-action
+          git config user.email loon-deploy@github.com
+          git add -A
+          git status
+          git diff-index --quiet HEAD || (git commit -m "github-deploy-action-${BRANCH_NAME}"; git push)
+        working-directory: ./server
