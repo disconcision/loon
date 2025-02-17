@@ -150,14 +150,21 @@ export function MessageNode({
   // Listen for ENTER_EDIT_MODE action
   useEffect(() => {
     if (isSelected && !isEditing) {
-      const handleEditMode = (e: CustomEvent) => {
-        if (e.detail?.id === id) {
+      const handleEditMode = (e: Event) => {
+        const customEvent = e as CustomEvent<{ id: NodeId }>;
+        if (customEvent.detail?.id === id) {
           enterEditMode();
         }
       };
-      window.addEventListener("ENTER_EDIT_MODE" as any, handleEditMode);
+      window.addEventListener(
+        "ENTER_EDIT_MODE",
+        handleEditMode as EventListener
+      );
       return () =>
-        window.removeEventListener("ENTER_EDIT_MODE" as any, handleEditMode);
+        window.removeEventListener(
+          "ENTER_EDIT_MODE",
+          handleEditMode as EventListener
+        );
     }
   }, [isSelected, isEditing, id, enterEditMode]);
 

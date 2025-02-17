@@ -40,7 +40,7 @@ export async function saveNodes(nodes: Map<NodeId, Node>) {
   await store.clear();
 
   // Add all nodes
-  for (const [id, node] of nodes) {
+  for (const [_id, node] of nodes) {
     await store.put(node);
   }
 
