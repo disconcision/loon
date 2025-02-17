@@ -1,5 +1,4 @@
 /** @jsxImportSource preact */
-import { h } from "preact";
 import { useStore } from "@/store/context";
 import { useCallback, useState, useEffect, useRef } from "preact/hooks";
 import { themes } from "@/styles/themes";
@@ -179,16 +178,12 @@ export function CommandBar() {
       )}
       <style jsx>{`
         .command-container {
-          position: fixed;
-          bottom: 0;
-          left: 0;
-          right: 0;
-          z-index: 100;
+          background: ${theme.surface};
+          border-top: 1px solid ${theme.border};
+          position: relative; /* For suggestions positioning */
         }
 
         .command-bar {
-          background: ${theme.surface};
-          border-top: 1px solid ${theme.border};
           transition: all 0.2s;
         }
 
@@ -205,10 +200,12 @@ export function CommandBar() {
         input {
           width: 100%;
           padding: 0 8px;
+          height: 24px; /* Fixed height for TUI consistency */
           font-family: monospace;
-          color: #e0e0e0;
-          caret-color: #e0e0e0;
+          color: ${theme.text};
+          caret-color: ${theme.text};
           background: transparent;
+          border: none;
           outline: none;
           transition: all 0.2s;
         }
@@ -225,7 +222,9 @@ export function CommandBar() {
           position: absolute;
           top: 0;
           left: 0;
-          padding: 2px 10px;
+          padding: 0 8px;
+          height: 24px;
+          line-height: 24px;
           font-family: monospace;
           pointer-events: none;
           white-space: pre;
@@ -252,10 +251,13 @@ export function CommandBar() {
           border-radius: 4px 4px 0 0;
           max-height: 200px;
           overflow-y: auto;
+          z-index: 100;
         }
 
         .suggestion {
-          padding: 2px 8px;
+          padding: 0 8px;
+          height: 24px;
+          line-height: 24px;
           cursor: pointer;
           transition: all 0.2s;
           display: flex;
@@ -270,7 +272,6 @@ export function CommandBar() {
         .suggestion-text {
           color: ${theme.text};
           font-family: monospace;
-          font-size: 14px;
         }
 
         .suggestion-description {

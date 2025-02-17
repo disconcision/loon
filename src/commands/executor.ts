@@ -1,6 +1,6 @@
 import { Command } from "./parser";
 import { Action } from "@/types/actions";
-import { ViewType, Node, NodeId, Model } from "@/types/model";
+import { Node, NodeId, Model } from "@/types/model";
 import { defaultCards } from "@/models/cards";
 import { requestCompletion } from "@/models/request";
 
@@ -12,15 +12,15 @@ export function executeCommand(
 ): Action | null {
   switch (command.type) {
     case "VIEW_TOGGLE":
-      return {
+      dispatch({
         type: "SET_VIEW_TYPE",
         viewType: state.viewState.viewType === "forest" ? "path" : "forest",
-      };
+      });
+      return null;
       
     case "THEME_TOGGLE":
-      return {
-        type: "TOGGLE_THEME",
-      };
+      dispatch({ type: "TOGGLE_THEME" });
+      return null;
       
     case "MODEL_CALL": {
       const card = defaultCards[command.model];

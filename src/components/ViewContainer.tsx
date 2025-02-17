@@ -164,11 +164,11 @@ export function ViewContainer() {
       {viewType === "forest" ? <ForestView /> : <PathView />}
       <style jsx>{`
         .view-container {
-          flex: 1;
           display: flex;
           flex-direction: column;
-          min-height: 0; /* Allow container to shrink */
+          overflow-y: auto;
           cursor: default;
+          min-height: 0; /* Allow container to shrink */
         }
       `}</style>
     </div>

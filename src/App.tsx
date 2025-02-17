@@ -62,17 +62,19 @@ function AppContent() {
         body {
           margin: 0;
           background: ${theme.background};
+          overflow: hidden; /* Prevent body scrolling */
         }
       `}</style>
       <style jsx>{`
         .app {
           min-height: 100vh;
-          height: 100vh; /* Ensure it takes full viewport height */
-          display: flex;
-          flex-direction: column;
+          height: 100vh;
+          display: grid;
+          grid-template-rows: 1fr auto;
           background: ${theme.background};
           color: ${theme.text};
           transition: all 0.2s;
+          overflow: hidden; /* Prevent app-level scrolling */
         }
       `}</style>
     </div>
