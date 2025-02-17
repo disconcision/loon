@@ -162,7 +162,7 @@ export function CommandBar() {
             onInput={handleInput}
             onFocus={handleFocus}
             onKeyDown={handleKeyDown}
-            placeholder="Enter command (e.g. view, theme, @go)"
+            placeholder="[☰] enter command"
           />
           {isFocused && (
             <div className="ghost-container">
@@ -182,7 +182,7 @@ export function CommandBar() {
             >
               <div className="suggestion-text">{suggestion.displayText}</div>
               <div className="suggestion-description">
-                {suggestion.description}
+                » {suggestion.description}
               </div>
             </div>
           ))}
@@ -215,14 +215,11 @@ export function CommandBar() {
 
         input {
           width: 100%;
-          padding: 8px;
+          padding: 0 8px;
           font-family: monospace;
-          font-size: 14px;
           color: #e0e0e0;
           caret-color: #e0e0e0;
           background: transparent;
-          border-top: 1px solid #404040;
-          border-radius: 0px;
           outline: none;
           transition: all 0.2s;
         }
@@ -239,15 +236,11 @@ export function CommandBar() {
           position: absolute;
           top: 0;
           left: 0;
-          right: 0;
-          padding: 8px;
+          padding: 2px 8px;
           font-family: monospace;
-          font-size: 14px;
           pointer-events: none;
           white-space: pre;
           overflow: hidden;
-          border: 1px solid transparent;
-          border-radius: 4px;
         }
 
         .ghost-user {
@@ -293,8 +286,7 @@ export function CommandBar() {
 
         .suggestion-description {
           color: ${theme.textDim};
-          font-size: 12px;
-          margin-top: 2px;
+          font-family: monospace;
         }
       `}</style>
     </div>

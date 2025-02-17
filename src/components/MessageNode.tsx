@@ -202,9 +202,9 @@ export function MessageNode({
       {isEditing ? (
         <pre className="content">
           {hasChildren && (
-            <span className="expander-space">{isExpanded ? "▾" : "▸"}</span>
+            <span className="expander-space">{isExpanded ? "⌄" : "›"}</span>
           )}
-          <span className="source-label">{sourceLabel}:</span>
+          <span className="source-label">{sourceLabel}</span>
           <textarea
             ref={textareaRef}
             value={editedContent}
@@ -232,10 +232,10 @@ export function MessageNode({
                 handleExpand();
               }}
             >
-              {isExpanded ? "▾" : "▸"}
+              {isExpanded ? "⌄" : "›"}
             </span>
           )}
-          <span className="source-label">{sourceLabel}:</span>
+          <span className="source-label">{sourceLabel}⚡</span>
           <span className="message-text">
             {isPlaceholder ? <TypingIndicator /> : node.message.content}
           </span>
